@@ -1,0 +1,93 @@
+=head1 NAME
+
+Parrot Smoke Test Suite
+
+=head1 SYNOPSIS
+
+  sh smoke.sh [/usr/CPAN/perl-current [smoke.cfg]]
+
+  or
+
+  perl smoke.pl [/usr/CPAN/parrot-current [smoke.cfg]]
+
+=head1 DESCRIPTION
+
+The parrot smoke test suite is a set of simple scripts that try to
+run the parrot tests on as many configurations as possible and combine
+that into a easy to parse report.
+
+The parrot source tree is refreshed using rsync to the latest level of the
+parrot development branche before the smoke tests start. Note that rsync in
+the smoke uses --delete, which <b>removes</b> any existing files on that
+directory that are not part of the perl source tree.
+
+=head1 INSTALLATION
+
+Create an empty directory where the perl source tree is to be placed when
+smoking (e.g. /usr/3gl/CPAN/parrot-current or C:\parrot-current).
+
+Create or use a location to put the three scripts needed for the smoke
+(e.g. /usr/3gl/CPAN/smoke or C:\smoke), and put the files from the
+distribution there. Probably you already did so, because you are
+reading this file.
+
+Edit smoke.sh ( for UNIX-like systems ) or smoke.pl ( for Win32 )
+and change the PC= definition to reflect the location you
+just chose in the first step of the initialisation.
+For Win32 systems you might want to change the 'make' program used
+Either of nmake and GNU make are available.
+Theoretically you are now ready to go, just follow the SYNOPSIS
+to give it a first shot for tonight.
+
+Optionally delete lines from smoke.cfg (or a local copy with a different
+name) for which you are certail your system doesn't support it.
+
+If something useful happens, do it every night using cron instead of at.
+
+=head1 Availability and references
+
+=head2 Distribution
+
+  $CPAN/authors/id/M/MB/MBARBON/Parrot-Smoke-0.01.tar.gz
+
+=head2 Mailing lists
+
+  CORE smokers:    smokers@perl.org
+  Perl general QA: perl-qa@perl.org
+  Smoke reports:   smokers-reports@perl.org
+
+=head2 Archives and web
+
+  http://qa.perl.org
+  http://archives.develooper.com/daily-build@perl.org/ and/or
+  news://nntp.perl.org/perl.daily-build
+
+=head1 COPYRIGHT and LICENCE
+
+Copyright (C) 2001 Mattia Barbon and H.Merijn Brand
+
+This suite is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself, without consulting the author.
+
+=head1 AUTHOR
+
+mattia Barbon <mbarbon@dsi.unive.it>. The work is heavily based upon
+the perl core smke test suite by
+H.Merijn Brand <h.m.brand@hccnet.nl> in dialogue and consultation with
+Michael Schwern <schwern@pobox.com>, the Perl QA pumpkin.
+
+=head1 Misc
+
+As always, have the appropriate amount of fun
+
+=head1 TODO
+
+=over 4
+
+=item Initialisation and installation
+
+Actually use Makefile.PL
+
+=back
+
+=cut
