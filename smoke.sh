@@ -11,8 +11,10 @@ CF=${2:-smoke.cfg}
 
 export PATH
 export MAKE
+export MAILER
 PATH=`pwd`:$PATH
-MAKE='make'
+MAKE=make
+MAILER="mailx"
 
 echo "Smoke $PC"
 umask 0
@@ -23,4 +25,4 @@ rsync --delete -avz cvs.perl.org::parrot-HEAD .
 
 (mktest.pl $CF 2>&1) >mktest.log      || echo mktest.pl exited with exit code $?
 
-mkovz.pl smokers-reports@perl.org $PC || echo mkovz.pl  exited with exit code $?
+mkovz.pl perl6-internals@perl.org $PC || echo mkovz.pl  exited with exit code $?

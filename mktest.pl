@@ -36,6 +36,7 @@ select ((select (STDOUT), $| = 1)[0]);
 # take values from environment
 my $MAKE = $ENV{MAKE};
 $MAKE = "$MAKE -E" if $MAKE eq 'dmake';
+$MAKE = "$MAKE -a" if $MAKE eq 'nmake';
 
 sub is_win32 { $^O eq 'MSWin32' }
 # this kludge is an hopefully portable way of having

@@ -1,4 +1,10 @@
 Revision history for Parrot Smoking Suite
-	
+
+0.02  Fri Oct 05 06:57:20 2001
+	- support for sending mail through Net::SMTP
+	- autonfiguration through Makefile.PL should work
+	  on Win32
+	- eliminated --define/--defaults from output
+
 0.01  Fri Sep 21 02:30:38 2001
 	- first version, based upon Test::Smoke 1.08

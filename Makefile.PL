@@ -4,22 +4,23 @@ use strict;
 
 use ExtUtils::MakeMaker;
 use File::Copy;
+use File::Path qw(mkpath);
 use Cwd qw(cwd abs_path);
 
 print "\nConfiguring the smoke test suite ...\n\n";
 
 WriteMakefile ( NAME	   => "Parrot::Smoke",
-                VERSION	   => "0.01",
+                VERSION	   => "0.02",
                 AUTHOR	   => 'Mattia Barbon <mbarbon@dsi.unive.it>',
               );
 
-print "Wait 0.02 for Win32 automatic configuration.\n\n";
-
-exit 0 if $^O =~ m/^(?: VMS | MSWin32 )$/x;
+exit 0 if $^O =~ m/^(?: VMS )$/x;
 
 my $sh = "";
+my $sh_name;
 {   local (*SH, $/);
-    open SH, "< smoke.sh" or die "smoke.sh: $!";
+    $sh_name = $^O eq 'MSWin32' ? 'smoke.pl' : 'smoke.sh';
+    open SH, "< $sh_name" or die "$sh_name: $!";
     $sh = <SH>;
     close SH;
     }
@@ -34,14 +35,8 @@ while (1) {
     $dir ||= "/usr/CPAN/parrot-current";
 
     unless (-d $dir) {
-	my ($p, $d) = ("", $dir);
-	while ($d =~ m:^(.*?/)(.*):) {
-	    $p .= $1;
-	    $d  = $2;
-	    mkdir $p, 0755;
-	    }
+        mkpath $dir;
 	}
-    mkdir $dir, 0755;
     unless (-d $dir) {
 	print "$dir is not a directory or cannot be created: $!\n";
 	redo;
@@ -79,7 +74,7 @@ while (1) {
 
 open STDERR, ">&STDOUT";
 my $time = "random";
-if (grep m/cron$/, `ps -ef`) {
+if ( $^O ne 'MSWin32' && grep m/cron$/, `ps -ef`) {
     my ($m, $h);
     while (1) {
 	print "At what time do you want the smoke to start ?\n";
@@ -124,33 +119,47 @@ while (!(-f $conf && -s _)) {
     }
 $conf ne "smoke.cfg" and $sh =~ s:\bsmoke\.cfg\b:$conf:;
 
-move ("smoke.sh", "smoke.sh.org");
-open  SH, "> smoke.sh" or die "smoke.sh: $!";
-print SH $sh;
-close SH;
-chmod 0755, "smoke.sh";
-
-foreach my $m (qw(mailx sendmail mail)) {
+foreach my $m (qw(mailx sendmail mail perl)) {
     my $mp;
     foreach my $d ((split m/:/, $ENV{PATH}), "/usr/sbin", "/usr/lib") {
 	-x "$d/$m" or next;
 	$mp = "$d/$m";
 	last;
 	}
-    $mp or next;
+    next unless $mp or $m eq 'perl';
+    $mp ||= 'perl';
 
-    local $/ = undef;
-    open OVZ, "< mkovz.pl" or die "mkovz.pl: $!";
-    my $ovz = <OVZ>;
-    close OVZ;
-    $ovz =~ s/"mailx"/"$mp"/;
-    move ("mkovz.pl", "mkovz.pl.org");
-    open  OVZ, "> mkovz.pl" or die "mkovz.pl: $!";
-    print OVZ $ovz;
-    close OVZ;
-    chmod 0755, "mkovz.pl";
+    if( $mp eq 'perl' ) {
+        my( $from, $host );
+
+        while( !$host ) {
+            print "Which SMTP host should I use ?\n";
+            print "[ ] > ";
+            chomp ($host = scalar <STDIN>);
+            $host =~ s/\s//g;
+            }
+
+        while( !$from ) {
+            print "What should I use as the 'From:' address ?\n";
+            print "[ ] > ";
+            chomp ($from = scalar <STDIN>);
+            $from =~ s/\s//g;
+            }
+
+        $sh =~ s/"mailhost"/"$host"/;
+        $sh =~ s/"mailfrom"/'$from'/;
+        }
+
+    $sh =~ s/"mailx"/"$mp"/;
     last;
     }
+
+move ("$sh_name", "$sh_name.org");
+open  SH, "> $sh_name" or die "$sh_name: $!";
+binmode SH;
+print SH $sh;
+close SH;
+chmod 0755, "$sh_name";
 
 print <<EOM;
 

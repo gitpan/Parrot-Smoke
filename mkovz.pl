@@ -46,9 +46,9 @@ for (<OUT>) {
 	# Unable to build in previous conf was hidden by crash junk?
 	exists $rpt{$conf}{$debug}  or $rpt{$conf}{$debug}  = "-";
 
-	s/-Dusedevel\s+//;
+        s/--defaults\s*//;
+        s/--define\s*//;
 	$debug = s/--debugging\s*// ? "D" : "";
-	s/\s+-des//;
 	s/\s+$//;
 	$conf = $_;
 	$confs{$_}++ or push @confs, $conf;
@@ -157,7 +157,7 @@ for my $i (0 .. $#fail) {
 close RPT;
 select STDOUT;
 
-my $mailer = "/usr/bin/mailx";
+my $mailer = $ENV{MAILER};
 my $subject = "Parrot Smoke $rpt{patch} $Config{osname} $Config{osvers}";
 if ($mailer =~ m/sendmail/) {
     local (*MAIL, *BODY, $/);
@@ -197,3 +197,4 @@ elsif( $mailer =~ m/perl/i ) {
 else {
     system "$mailer -s '$subject' $email < $testd/mktest.rpt";
     }
+
